@@ -83,11 +83,17 @@ if __name__ == '__main__':
 	i=1;
 	for linha in arquivo:
 		linha = linha.strip()
-		for token in lexer.lex(linha.lower()):
-			if token.name == "ID" and token.value.lower() in reserved:
-			# yield Token(token.value.upper(), token.value)
-				print(f'< {i}, RESERVED , {token.value:^9} >')
-			else:
-				print(f'< {i:^2}, {token.name:^16}, {token.value:^9} >')
+		token=lexer.lex(linha.lower()) 
+		try:
+			for t in token:
+				
+				if t.name == "ID" and t.value.lower() in reserved:
+				# yield t(t.value.upper(), t.value)
+					print(f'< {i}, RESERVED , {t.value:^9} >')
+				else:
+					print(f'< {i:^2}, {t.name:^16}, {t.value:^9} >')
 
+
+		except:
+			print(f'Erro lexico, linha {i} ')
 		i+=1
