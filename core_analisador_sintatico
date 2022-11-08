@@ -1,0 +1,357 @@
+import warnings
+from rply import ParserGenerator, LexerGenerator, ParsingError
+from rply.lexer import LexingError
+from rply.token import BaseBox
+
+# cria um objeto LexerGenerator
+lg = LexerGenerator()
+
+# insere as regras de formação (expressões regulares) dos tokens da linguagem
+
+#PREDEFINED IDENTIFIERS
+lg.add('VOID', r'void')
+
+
+lg.add('BOOLEAN', r'boolean')
+lg.add('TRUE', r'true')
+lg.add('FALSE', r'false')
+lg.add('READ', r'read')
+lg.add('INTEGER', r'integer')
+lg.add('WRITE', r'write')
+lg.add('LABELS', r'labels')
+lg.add('TYPES', r'types')
+lg.add('VARS', r'vars')
+lg.add('VAR', r'var')
+lg.add('GOTO', r'goto')
+lg.add('RETURN', r'return')
+lg.add('IF', r'if')
+lg.add('ELSE', r'else')
+lg.add('WHILE', r'while')
+
+
+lg.add('FUNCTIONS', r'functions')
+
+lg.add('EQUAL', r'\==')
+lg.add('ATTR', r'\=')
+
+lg.add('NOTEQUAL', r'!=')
+lg.add('NOT', r'\!')
+
+lg.add('GREATEREQUALTHAN', r'>=')
+lg.add('GREATERTHAN', r'>')
+
+lg.add('LESSEREQUALTHAN', r'<=')
+lg.add('LESSERTHAN', r'<')
+
+lg.add('OR', r'\|\|')
+lg.add('AND', r'\&\&')
+
+
+lg.add('NUMBER', r'\d+')
+lg.add('PLUS', r'\+')
+lg.add('MINUS', r'-')
+lg.add('MULT', r'\*')
+lg.add('DIV', r'/')
+lg.add('LPAREN', r'\(')
+lg.add('RPAREN', r'\)')
+lg.add('LCHAVE', r'\{')
+lg.add('RCHAVE', r'\}')
+lg.add('COMMA', r'\,')
+lg.add('SEMICOLON', r'\;')
+lg.add('COMMA', r'\,')
+lg.add('COLON', r'\:')
+lg.add('LBRACKET', r'\[')
+lg.add('RBRACKET', r'\]')
+lg.add('COLON', r'\:')
+
+
+
+lg.add('ID', r'[a-z][a-z0-9]*')
+lg.add('DIGIT', r'[0-9]*')
+
+
+
+lg.add('MOD', r'%')
+
+# cria uma regra para ignorar caracteres de espaços
+lg.ignore('\s+')
+lg.ignore('\#.+')
+
+#####################################################
+pg = ParserGenerator(
+        ['VOID', 'ID', 'LPAREN', 'RPAREN', 'LCHAVE', 'RCHAVE', 'VAR','COLON', 'COMMA', 'ATTR',
+         'MULT', 'DIV', 'AND', 'PLUS', 'MINUS', 'OR','INTEGER','DIGIT','NOT','COLON','VAR',
+         'COMMA','SEMICOLON', 'GREATEREQUALTHAN', 'LESSEREQUALTHAN','LESSERTHAN','GREATERTHAN','EQUAL','NOTEQUAL',
+         'FUNCTIONS','LABELS','VARS','RETURN','IF','ELSE','WHILE'],
+     )
+
+
+@pg.production('program : function')
+def program(p):
+    return p[0].getstr()
+
+@pg.production('function : VOID ID formal_parameters block')
+@pg.production('function : ID ID formal_parameters block')
+def function(p):
+    #print(p[0], p[1], p[2])
+    return p[0]
+
+@pg.production('formal_parameters : LPAREN formal_parameters2')
+@pg.production('formal_parameters : empty')
+def formal_parameters(p):
+    #print(p[0])
+    return p[0]
+
+@pg.production('formal_parameters1 : SEMICOLON formal_parameter formal_parameters1')
+@pg.production('formal_parameters1 : empty')
+def formal_parameters1(p):
+
+    return p[0]
+
+@pg.production('formal_parameters2 : expression_parameter formal_parameters1 RPAREN')
+@pg.production('formal_parameters2 : formal_parameters1 RPAREN')
+@pg.production('formal_parameters2 : RPAREN')
+def formal_parameters2(p):
+    return p[0]
+
+@pg.production('formal_parameter : expression_parameter')
+@pg.production('formal_parameter : empty')
+def formal_parameter(p):
+    return p[0]
+
+@pg.production('expression_parameter : identifier_list COLON ID')
+@pg.production('expression_parameter : VAR identifier_list COLON ID')
+def expression_parameter(p):
+   
+    return p[0]
+
+@pg.production('identifier_list : ID identifier_list1')
+def identifier_list(p):
+    print(f"identifier_list ->{p[0], p[1]}")
+    return p[0]
+
+@pg.production('identifier_list1 : COMMA ID identifier_list1')
+#@pg.production('identifier_list1 : empty')
+def identifier_list1(p):
+    print(f"identifier_list1 ->{p[0]}")
+    return p[0]
+
+
+@pg.production('block : variables block3')
+@pg.production('block : LABELS block2')
+@pg.production('block : FUNCTIONS body')
+@pg.production('block : body')
+def block(p):
+    return p[0]
+
+@pg.production('block1 :  FUNCTIONS body')
+@pg.production('block1 :  body')
+def block1(p):
+    return p[0]
+
+@pg.production('block2 :   FUNCTIONS body')
+@pg.production('block2 :   body')
+@pg.production('block2 :   variables block1')
+def block2(p):
+    return p[0]
+
+@pg.production('block3 :    FUNCTIONS body')
+@pg.production('block3 :     body')
+def block3(p):
+    return p[0]
+
+
+@pg.production('variables : VARS identifier_list COLON type SEMICOLON variables1')
+def variables(p):
+    return p[0]
+
+@pg.production('variables1 : identifier_list COLON type SEMICOLON variables1')
+@pg.production('variables1 : empty')
+def variables1(p):
+    return p[0]
+
+@pg.production('type : ID')
+def type(p):
+    return p[0]
+
+@pg.production('body : LCHAVE statement RCHAVE')
+def body(p):
+    return p[0]
+
+@pg.production('statement : unlabeled_statement')
+@pg.production('statement : compound')
+@pg.production('statement : ID COLON unlabeled_statement')
+@pg.production('statement : ID COLON unlabeled_statement')
+@pg.production('statement : empty')
+def statement(p):
+    return p[0]
+
+@pg.production('unlabeled_statement : function_call_statement')
+@pg.production('unlabeled_statement : empty_statement')
+@pg.production('unlabeled_statement : retorno')
+@pg.production('unlabeled_statement : conditional')
+@pg.production('unlabeled_statement : repetitive')
+def unlabeled_statement(p):
+    return p[0]
+
+@pg.production('function_call_statement : function_call SEMICOLON')
+def function_call_statement(p):
+    return p[0]
+
+@pg.production('function_call : ID LPAREN expression_list RPAREN')
+def function_call(p):
+    return p[0]
+
+@pg.production('assignment :  variable ATTR expression SEMICOLON')
+def assignment(p):
+    return p[0]
+
+@pg.production('variable :  ID')
+def variable(p):
+    return p[0]
+
+@pg.production('expression :  simple_expression expression1')
+def expression(p):
+    return p[0]
+
+@pg.production('expression1 :  relational_operator simple_expression')
+@pg.production('expression1 : empty')
+def expression1(p):
+    return p[0]
+
+@pg.production('simple_expression :  term simple_expression1')
+@pg.production('simple_expression :  PLUS term simple_expression1')
+@pg.production('simple_expression :  MINUS term simple_expression1')
+def simple_expression(p):
+    return p[0]
+
+@pg.production('simple_expression1 : additive_operator term simple_expression1')
+@pg.production('simple_expression1 : empty')
+def simple_expression1(p):
+    return p[0]
+
+@pg.production('term : factor term1')
+def term(p):
+    return p[0]
+
+@pg.production('term1 : multiplicative_operator factor term1')
+@pg.production('term1 : empty')
+def term1(p):
+    return p[0]
+
+@pg.production('factor : function_call')
+@pg.production('factor :  LPAREN expression RPAREN')
+@pg.production('factor :  NOT factor')
+@pg.production('factor :  INTEGER')
+def factor(p):
+    return p[0]
+
+@pg.production('multiplicative_operator :  MULT')
+@pg.production('multiplicative_operator :  DIV')
+@pg.production('multiplicative_operator :  AND')
+def multiplicative_operator(p):
+    return p[0]
+
+@pg.production('relational_operator :  EQUAL')
+@pg.production('relational_operator :  NOTEQUAL')
+@pg.production('relational_operator :  LESSERTHAN')
+@pg.production('relational_operator :  GREATERTHAN')
+@pg.production('relational_operator :  LESSEREQUALTHAN')
+@pg.production('relational_operator :  GREATEREQUALTHAN')
+@pg.production('relational_operator :  AND')
+def relational_operator(p):
+    return p[0]
+
+@pg.production('additive_operator :  PLUS')
+@pg.production('additive_operator :  MINUS')
+@pg.production('additive_operator :  OR')
+def additive_operator(p):
+    return p[0]
+
+@pg.production('retorno : RETURN retorno1')
+def retorno(p):
+    return p[0]
+
+@pg.production('retorno1 :  expression SEMICOLON')
+@pg.production('retorno1 :  SEMICOLON')
+def retorno1(p):
+    return p[0]
+
+@pg.production('conditional : IF LPAREN expression RPAREN compound conditional1')
+def conditional(p):
+    return p[0]
+
+@pg.production('conditional1 : ELSE compound')
+@pg.production('conditional1 : empty')
+def conditional1(p):
+    return p[0]
+
+@pg.production('repetitive : WHILE LPAREN expression RPAREN compound')
+def repetitive(p):
+    return p[0]
+
+@pg.production('empty_statement : SEMICOLON')
+def empty_statement(p):
+    return p[0]
+
+@pg.production('compound : LCHAVE unlabeled_statement compound1 RCHAVE')
+def compound(p):
+    return p[0]
+@pg.production('compound1 : unlabeled_statement compound1')
+@pg.production('compound1 : empty')
+def compound1(p):
+    return p[0]
+
+@pg.production('expression_list : expression expression_list1')
+@pg.production('expression_list : empty')
+def expression_list(p):
+    return p[0]
+@pg.production('expression_list1 : COMMA expression expression_list1')
+@pg.production('expression_list1 : empty')
+def expression_list1(p):
+    return p[0]
+
+@pg.production('empty : ')
+def empty(p):
+    return 
+
+
+
+
+
+
+
+
+
+
+
+
+
+def robo_run(source_code):
+    l = lg.build()
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            for expr in pg.build().parse(l.lex(source_code)):
+                print( expr)
+    except ParsingError as e:
+        print ("ParsingError: lineno={} colno={}".format(
+            e.getsourcepos().lineno, e.getsourcepos().colno))
+    except LexingError as e:
+        print( "LexingError: lineno={} colno={}".format(
+            e.getsourcepos().lineno, e.getsourcepos().colno))
+
+
+if __name__ == '__main__':
+    source_code =  """  
+       void main ( ) 
+       vars m , n , s : integer;
+       {
+         while ( m <=  n){
+           s = s + m * m;
+           write(m,s);
+           m = m+1
+         }
+       }
+    """
+    robo_run(source_code)
