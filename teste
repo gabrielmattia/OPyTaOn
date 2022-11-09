@@ -1,8 +1,146 @@
-void teste (){
-  INTEGER a,b;
-  read(a,b);
-  write(a+b/(a&&b)) 
-  1a;
-  
-  #comentario 123 {} */*
+void Example()
+vars n, k: id;
+f1, f2, f3: id;
+{
+read(n);
+f1 = 0; f2 = 1; k = 1;
+while (k<=n) {
+f3 = f1+f2;
+f1 = f2; f2 = f3;
+k = k+1;
 }
+write(n,f1);
+}
+
+
+
+void Example()
+vars n, k: integer;
+f1, f2, f3: integer;
+{
+read(n);
+f1 = 0; f2 = 1;
+k = 1;
+while (k<=n) {
+f3 = f1+f2;
+f1 = f2;
+f2 = f3;
+k = k+1;
+}
+write(n,f1);
+}
+
+
+
+void Example()
+vars x, y : id;
+functions
+void p()
+vars z : id;
+{
+z = x; x = x - 1;
+
+if( z > 1 ) { p() ;}
+else { y = 1; }
+y = y*z;
+}
+{
+read(x);
+p();
+write(x,y);
+}
+
+
+
+
+
+
+void Example()
+vars x, y: id;
+functions
+void p(var s: id)
+vars z: id;
+{
+if (s==1)
+{ y=1; }
+else {
+z = s-1;
+p(z);
+y = y*s;
+}
+} # end p
+{
+x = 4;
+p(x);
+write(x,y);
+}
+
+
+
+void Example()
+vars k: integer;
+functions
+void p(n: integer; var g: integer)
+vars h: integer;
+{
+if (n<2) { g = g+n; }
+else {
+h = g;
+p(n-11,h);
+g = h;
+p(n-12,g);
+}
+write(n,g);
+} // end p
+{
+k = 0; p(3,k);
+}
+
+
+void Example()
+vars m: integer;
+functions
+integer f(n: integer;
+var k: integer)
+vars p,q,t: integer;
+{ if (n<2) {
+k = 0; return n;
+} else {
+t = f(n-1,p);
+f(n-2,p);
+k = p+q+1;
+return t;
+}
+write(n,k);
+} 
+{
+write(f(3,m),m);
+}
+
+
+
+
+
+void Example()
+vars x: integer;
+functions
+void p(var t: integer)
+labels L100, L200;
+vars s: integer;
+functions
+integer f(z: integer)
+{
+if (z<0) { goto L200; }
+else { if (z==0) { return 2; }
+else { return f(z-12)*z+1; }
+}
+} 
+{ L100: s = f(t); t = s;
+if (t<x) { goto L100; }
+L200: x = x-11;
+} 
+
+
+
+
+
