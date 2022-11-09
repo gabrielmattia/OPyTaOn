@@ -5,5 +5,5 @@ College assignment to compilers 1's class.
 
 ## Parts implemented so far
 - Lexical analyser
-- Syntactic Analyser(soon...)
+- Syntactic Analyser
 - semantical analyser(soon...)
